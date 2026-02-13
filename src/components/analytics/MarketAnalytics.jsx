@@ -1,8 +1,7 @@
-import { useAtomValue } from 'jotai'
+import { useTranslation } from '@/hooks'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { translationAtom } from "@/store/atoms"
 import {
   Table,
   TableBody,
@@ -77,7 +76,7 @@ function TrendLine({ data, color = "emerald" }) {
 }
 
 export function MarketAnalytics({ marketPrices, predictions }) {
-  const t = useAtomValue(translationAtom)
+  const t = useTranslation()
   return (
     <Card>
       <CardHeader>

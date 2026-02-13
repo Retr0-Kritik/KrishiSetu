@@ -1,8 +1,7 @@
-import { useAtomValue } from 'jotai'
+import { useTranslation } from '@/hooks'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { translationAtom } from "@/store/atoms"
 import { 
   Truck, 
   MapPin, 
@@ -107,7 +106,7 @@ function TruckCapacityCard({ cluster, maxCapacity = 1000, t }) {
 }
 
 export function LogisticsVisualization({ clusters }) {
-  const t = useAtomValue(translationAtom)
+  const t = useTranslation()
   // Filter to only show active pools (clusters with multiple farmers)
   const activeClusters = clusters.filter(c => c.farmerCount > 1)
   

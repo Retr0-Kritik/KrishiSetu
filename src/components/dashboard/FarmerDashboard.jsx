@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react"
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { translationAtom, joinedPoolsAtom, notificationAtom, shipmentsAtom } from "@/store/atoms"
+import { useTranslation, useCountdown, usePoolActions } from "@/hooks"
 import { 
   Select, 
   SelectContent, 
@@ -36,30 +35,7 @@ import {
 
 // Isolated component for pool action cell - only this re-renders for countdown
 function PoolActionCell({ poolId, poolName, joinedAt, onJoinPool, onLeavePool, t }) {
-  const [timeRemaining, setTimeRemaining] = useState(() => {
-    if (!joinedAt) return 0
-    const elapsed = Date.now() - joinedAt
-    return Math.max(0, 15 * 60 * 1000 - elapsed)
-  })
-
-  useEffect(() => {
-    if (!joinedAt) return
-    
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - joinedAt
-      const remaining = Math.max(0, 15 * 60 * 1000 - elapsed)
-      setTimeRemaining(remaining)
-      if (remaining <= 0) clearInterval(interval)
-    }, 1000)
-    
-    return () => clearInterval(interval)
-  }, [joinedAt])
-
-  const formatTime = (ms) => {
-    const minutes = Math.floor(ms / 60000)
-    const seconds = Math.floor((ms % 60000) / 1000)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
-  }
+  const { timeRemaining, formatTime } = useCountdown(joinedAt)
 
   if (joinedAt) {
     return (
@@ -100,69 +76,16 @@ function PoolActionCell({ poolId, poolName, joinedAt, onJoinPool, onLeavePool, t
 }
 
 export function FarmerDashboard({ clusters, benefits }) {
-  const t = useAtomValue(translationAtom)
-  const [joinedPools, setJoinedPools] = useAtom(joinedPoolsAtom)
-  const setNotification = useSetAtom(notificationAtom)
-  const setShipments = useSetAtom(shipmentsAtom)
+  const t = useTranslation()
+  const { joinedPools, addShipment, joinPool, leavePool } = usePoolActions()
   const [cropType, setCropType] = useState("")
   const [weight, setWeight] = useState("")
   const [location, setLocation] = useState("")
 
-  const handleAddShipment = (newShipment) => {
-    const locations = {
-      bardhaman: { name: "bardhaman", lat: 23.2324, lon: 87.8615 },
-      durgapur: { name: "durgapur", lat: 23.5204, lon: 87.3119 },
-      asansol: { name: "asansol", lat: 23.6850, lon: 86.9537 },
-      siliguri: { name: "siliguri", lat: 26.7271, lon: 88.6393 },
-      howrah: { name: "howrah", lat: 22.5958, lon: 88.2636 },
-      kolkata: { name: "kolkata", lat: 22.5726, lon: 88.3639 },
-      malda: { name: "malda", lat: 25.0108, lon: 88.1411 },
-      murshidabad: { name: "murshidabad", lat: 24.1745, lon: 88.2749 },
-    }
-
-    const baseLocation = locations[newShipment.location]
-    const offset = () => (Math.random() - 0.5) * 0.05
-
-    const shipment = {
-      id: `shipment-${Date.now()}`,
-      farmerName: "You",
-      crop: newShipment.crop,
-      weight: newShipment.weight,
-      location: {
-        name: baseLocation.name,
-        lat: baseLocation.lat + offset(),
-        lon: baseLocation.lon + offset()
-      },
-      requestedDate: new Date().toLocaleDateString('en-IN'),
-      status: "pending"
-    }
-
-    setShipments(prev => [...prev, shipment])
-  }
-
-  const handleJoinPool = (poolId, locationName) => {
-    setJoinedPools(prev => ({
-      ...prev,
-      [poolId]: { joinedAt: Date.now() }
-    }))
-    setNotification(`Joined ${locationName} pool! You can opt out within 15 minutes.`)
-    setTimeout(() => setNotification(null), 4000)
-  }
-
-  const handleLeavePool = (poolId, locationName) => {
-    setJoinedPools(prev => {
-      const updated = { ...prev }
-      delete updated[poolId]
-      return updated
-    })
-    setNotification(`Left ${locationName} transport pool.`)
-    setTimeout(() => setNotification(null), 3000)
-  }
-
   const handleSubmit = (e) => {
     e.preventDefault()
     if (cropType && weight && location) {
-      handleAddShipment({
+      addShipment({
         crop: cropType,
         weight: parseFloat(weight),
         location: location
@@ -238,7 +161,7 @@ export function FarmerDashboard({ clusters, benefits }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Shipment Form */}
-        <Card className="lg:col-span-1">
+        <Card className="lg:col-span-1 h-[500px]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Truck className="h-5 w-5 text-primary" />
@@ -307,8 +230,8 @@ export function FarmerDashboard({ clusters, benefits }) {
         </Card>
 
         {/* Active Pools Table */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
+        <Card className="lg:col-span-2 h-[500px] flex flex-col">
+          <CardHeader className="flex-shrink-0">
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               {t('availablePools')}
@@ -317,7 +240,7 @@ export function FarmerDashboard({ clusters, benefits }) {
               {t('joinPoolsDesc')}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-y-auto flex-1 min-h-0">
             {allPools.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -369,8 +292,8 @@ export function FarmerDashboard({ clusters, benefits }) {
                               poolId={pool.id}
                               poolName={t(pool.centroid.name)}
                               joinedAt={joinedPools[pool.id]?.joinedAt}
-                              onJoinPool={handleJoinPool}
-                              onLeavePool={handleLeavePool}
+                              onJoinPool={joinPool}
+                              onLeavePool={leavePool}
                               t={t}
                             />
                           )}

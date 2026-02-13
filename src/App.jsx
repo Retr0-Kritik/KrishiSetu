@@ -1,28 +1,17 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useState } from 'react'
+import { useAtomValue } from 'jotai'
 import { FarmerDashboard } from '@/components/dashboard/FarmerDashboard'
 import { MarketAnalytics } from '@/components/analytics/MarketAnalytics'
 import { LogisticsVisualization } from '@/components/logistics/LogisticsVisualization'
 import { BottomNavigation, Header, DesktopSidebar } from '@/components/layout/Navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
-  activeTabAtom, 
-  shipmentsAtom, 
-  notificationAtom,
-  translationAtom 
-} from '@/store/atoms'
-import { 
-  clusterShipments, 
-  generateMockShipments, 
-  generateMarketPrices, 
-  generatePricePredictions,
-  calculatePoolingBenefits 
-} from '@/utils/clusteringEngine'
+import { activeTabAtom, notificationAtom } from '@/store/atoms'
+import { useTranslation, useAppData } from '@/hooks'
 import { User, Settings, Bell, HelpCircle } from 'lucide-react'
 import './styles/index.css'
 
 function ProfilePage() {
-  const t = useAtomValue(translationAtom)
+  const t = useTranslation()
   const [activeAction, setActiveAction] = useState(null)
 
   const handleQuickAction = (action) => {
@@ -95,28 +84,8 @@ function ProfilePage() {
 
 function App() {
   const activeTab = useAtomValue(activeTabAtom)
-  const [shipments, setShipments] = useAtom(shipmentsAtom)
   const notification = useAtomValue(notificationAtom)
-  
-  // Initialize with mock data
-  useEffect(() => {
-    const mockShipments = generateMockShipments(15)
-    setShipments(mockShipments)
-  }, [setShipments])
-
-  // Cluster shipments using the mock clustering engine
-  const clusters = useMemo(() => {
-    return clusterShipments(shipments, 10)
-  }, [shipments])
-
-  // Calculate pooling benefits
-  const benefits = useMemo(() => {
-    return calculatePoolingBenefits(clusters)
-  }, [clusters])
-
-  // Generate market data
-  const marketPrices = useMemo(() => generateMarketPrices(), [])
-  const predictions = useMemo(() => generatePricePredictions(), [])
+  const { clusters, benefits, marketPrices, predictions } = useAppData()
 
   const renderContent = () => {
     switch (activeTab) {

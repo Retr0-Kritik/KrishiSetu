@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai'
 import { cn } from "@/lib/utils"
-import { languageAtom, translationAtom, activeTabAtom } from "@/store/atoms"
+import { languageAtom, activeTabAtom } from "@/store/atoms"
+import { useTranslation } from '@/hooks'
 import { 
   Select, 
   SelectContent, 
@@ -43,7 +44,7 @@ function LanguageSwitcher() {
 }
 
 export function BottomNavigation() {
-  const t = useAtomValue(translationAtom)
+  const t = useTranslation()
   const [activeTab, setActiveTab] = useAtom(activeTabAtom)
   
   return (
@@ -102,7 +103,7 @@ export function Header() {
 }
 
 export function DesktopSidebar() {
-  const t = useAtomValue(translationAtom)
+  const t = useTranslation()
   const [activeTab, setActiveTab] = useAtom(activeTabAtom)
   
   return (
