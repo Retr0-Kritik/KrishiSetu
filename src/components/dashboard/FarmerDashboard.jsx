@@ -322,11 +322,11 @@ export function FarmerDashboard({ clusters, benefits }) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t('location')}</TableHead>
-                    <TableHead>{t('farmers')}</TableHead>
-                    <TableHead>{t('totalWeight')}</TableHead>
-                    <TableHead>{t('savings')}</TableHead>
-                    <TableHead>{t('action')}</TableHead>
+                    <TableHead className="min-w-[160px]">{t('location')}</TableHead>
+                    <TableHead className="w-[100px]">{t('farmers')}</TableHead>
+                    <TableHead className="w-[100px]">{t('totalWeight')}</TableHead>
+                    <TableHead className="w-[120px]">{t('savings')}</TableHead>
+                    <TableHead className="w-[140px]">{t('action')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -347,8 +347,8 @@ export function FarmerDashboard({ clusters, benefits }) {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={isPending ? "outline" : "secondary"}>
-                            {pool.farmerCount} {t('farmers')}
+                          <Badge variant={isPending ? "outline" : "secondary"} className="whitespace-nowrap">
+                            {pool.farmerCount}
                           </Badge>
                         </TableCell>
                         <TableCell>{pool.totalWeight} kg</TableCell>

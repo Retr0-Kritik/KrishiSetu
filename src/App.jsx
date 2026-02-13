@@ -19,7 +19,7 @@ import {
   calculatePoolingBenefits 
 } from '@/utils/clusteringEngine'
 import { User, Settings, Bell, HelpCircle } from 'lucide-react'
-import './index.css'
+import './styles/index.css'
 
 function ProfilePage() {
   const t = useAtomValue(translationAtom)

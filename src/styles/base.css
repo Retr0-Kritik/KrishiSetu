@@ -1,0 +1,15 @@
+/* ========================================
+   Base / Reset Styles
+   Global defaults applied to all elements
+   ======================================== */
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+}
